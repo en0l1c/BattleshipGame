@@ -5,17 +5,39 @@ namespace BattleshipGame
         int mouseCellX;
         int mouseCellY;
 
+        int totalShips;
+        int totalEnemyShips;
+        int rounds;
+
+
+        //Index of the selected ship\
+        //[-1] for none, [0] for patrol .......
+        int currentShip;
+        //Ship rotation (true->vertical), (false->horizontal)
+        bool shipRotation;
+        // Which ship is already deployed
+        bool[] shipDeployed = new bool[4];
+
         public GameForm()
         {
             InitializeComponent();
 
             mouseCellX = -1;
             mouseCellY = -1;
+
+            currentShip = -1; // -1 for none
+            shipRotation = true; // true for vertical
+
+            // GameForm Settings
+            this.MaximizeBox = false;
+            //this.CenterToScreen(1);
+
+            Cell.DefineCell();
         }
 
         private void enemysFieldPbox_Click(object sender, EventArgs e)
         {
-
+  
         }
 
         private void enemysFieldPbox_MouseMove(object sender, MouseEventArgs e)
@@ -35,6 +57,7 @@ namespace BattleshipGame
 
                     // Draw the outer frame of the selected cell.
                     Draw.DrawBorderToCell(mouseCellX, mouseCellY, this, enemysFieldPbox);
+                   
                 }
             }
             else
@@ -51,6 +74,14 @@ namespace BattleshipGame
         private void enemysFieldPbox_MouseClick(object sender, MouseEventArgs e)
         {
             MessageBox.Show(Draw.GetX(this, enemysFieldPbox).ToString() + Environment.NewLine + Draw.GetY(this, enemysFieldPbox).ToString());
+
+            
+            
+        }
+
+        private void enemysFieldPbox_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }

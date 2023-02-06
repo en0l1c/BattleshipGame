@@ -43,7 +43,7 @@ namespace BattleshipGame
             int titleBarHeight = form.Height - form.ClientSize.Height - 2 * borderWidth;
             int coorY = Control.MousePosition.Y - form.Location.Y - fieldPbox.Location.Y - titleBarHeight - borderWidth;
             //return coorY;
-            return (coorY < 28 || coorY > 347) ? -1 : coorY;
+            return (coorY < 28 || coorY > 347) ? -1 : coorY; //επιτρεπτές είναι μόνο τα points μεταξύ του 28 και του 347 και για τον αξονα χ'χ και για τον άξονα y'y
         }
         static public int GetCell(int coor)
         {
@@ -57,9 +57,12 @@ namespace BattleshipGame
         {
             Graphics g = fieldPbox.CreateGraphics();
             Pen p = new Pen(Color.Red, 3);
-            g.DrawRectangle(p, (cellX + 1) * 32 - 7, (cellY + 1) * 32 - 7, 38, 38);
+            Rectangle rect = new Rectangle((cellX + 1) * 32 - 7, (cellY + 1) * 32 - 7, 38, 38);
+            g.DrawRectangle(p, rect);
 
         }
+
+        
 
     }
 }

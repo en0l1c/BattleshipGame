@@ -42,6 +42,7 @@
             this.enemysFieldPbox.TabIndex = 0;
             this.enemysFieldPbox.TabStop = false;
             this.enemysFieldPbox.Click += new System.EventHandler(this.enemysFieldPbox_Click);
+            this.enemysFieldPbox.Paint += new System.Windows.Forms.PaintEventHandler(this.enemysFieldPbox_Paint);
             this.enemysFieldPbox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.enemysFieldPbox_MouseClick);
             this.enemysFieldPbox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.enemysFieldPbox_MouseMove);
             // 
