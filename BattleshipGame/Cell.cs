@@ -14,6 +14,7 @@ namespace BattleshipGame
     {
         static int x;
         static int y;
+        static Point pt;
 
 
 
@@ -25,7 +26,7 @@ namespace BattleshipGame
         /// <summary>
         /// i methodos pou akolouthei vazei ola tis suntetagmenes poy uparxoyn se ena keli se ena onoma. px (28,28) kai (29,28) mexri kai (59,28) antistoixoun sto keli A1. k.o.k
         /// </summary>
-        public static void DefineCell()
+        public static void DefineCells()
         {
 
             int cnt = 0;
@@ -61,22 +62,44 @@ namespace BattleshipGame
             }
             
 
-            // Print each pair of the dictionary
-            for(int i=0; i< 10; i++) // 10 times, one time for each row of the grid
-            {
-                foreach (KeyValuePair<List<Point>, string> cell in cells)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendFormat("{0} => {1}", cell.Key[i], cell.Value);
-
-                    MessageBox.Show(sb.ToString());
-                }
-            }
-            
-
         }
 
 
+        public static Point GetPointOfRequestedCell(string nameOfCell) // row, column
+        {
+            DefineCells(); // call the DefineCell() method to store all the coordinates
+            
+            int x;
+            int y;
+            bool keepGoing = true;
+
+            // searching for the requested cell
+            for (int i = 0; i < 10 && keepGoing; i++) // 10 times, one time for each row of the grid
+            {
+                foreach (KeyValuePair<List<Point>, string> cell in cells)
+                {
+                    if (nameOfCell == cell.Value) //cell.Value is char
+                    {
+                        x = cell.Key[i].X; // keep the X from the point
+                        y = cell.Key[i].Y; // keep the y from the point
+                        pt = new Point(x, y);
+                        // Print testing message
+                        StringBuilder sb = new StringBuilder();
+                        sb.AppendFormat("{0} => {1}", cell.Key[i], cell.Value);
+                        MessageBox.Show(sb.ToString() + Environment.NewLine + "X = " + x + Environment.NewLine + "Y = " + y);
+
+                        // if the loop finds the first point is inside the cell.Value break the two loops and keep this point
+                        keepGoing = false; // To break the outer loop for(i)
+                        break; // if we get the X and Y we break the for because we found the point we wanted.
+
+                    }
+                    //StringBuilder sb = new StringBuilder();
+                    //sb.AppendFormat("{0} => {1}", cell.Key[i], cell.Value);
+                    //MessageBox.Show(sb.ToString());
+                }
+            }
+            return pt;
+        }
 
 
 

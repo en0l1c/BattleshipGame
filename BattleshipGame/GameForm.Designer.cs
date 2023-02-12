@@ -29,7 +29,9 @@
         private void InitializeComponent()
         {
             this.enemysFieldPbox = new System.Windows.Forms.PictureBox();
+            this.playersFieldPbox = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.enemysFieldPbox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playersFieldPbox)).BeginInit();
             this.SuspendLayout();
             // 
             // enemysFieldPbox
@@ -46,15 +48,28 @@
             this.enemysFieldPbox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.enemysFieldPbox_MouseClick);
             this.enemysFieldPbox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.enemysFieldPbox_MouseMove);
             // 
+            // playersFieldPbox
+            // 
+            this.playersFieldPbox.Image = global::BattleshipGame.Properties.Resources.battlefield2;
+            this.playersFieldPbox.Location = new System.Drawing.Point(539, 12);
+            this.playersFieldPbox.Name = "playersFieldPbox";
+            this.playersFieldPbox.Size = new System.Drawing.Size(377, 377);
+            this.playersFieldPbox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.playersFieldPbox.TabIndex = 1;
+            this.playersFieldPbox.TabStop = false;
+            this.playersFieldPbox.Paint += new System.Windows.Forms.PaintEventHandler(this.playersFieldPbox_Paint);
+            // 
             // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(824, 487);
+            this.ClientSize = new System.Drawing.Size(987, 487);
+            this.Controls.Add(this.playersFieldPbox);
             this.Controls.Add(this.enemysFieldPbox);
             this.Name = "GameForm";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.enemysFieldPbox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playersFieldPbox)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -62,5 +77,6 @@
         #endregion
 
         private PictureBox enemysFieldPbox;
+        private PictureBox playersFieldPbox;
     }
 }

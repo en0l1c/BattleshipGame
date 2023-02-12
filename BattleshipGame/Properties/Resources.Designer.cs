@@ -10,8 +10,9 @@
 
 namespace BattleshipGame.Properties {
     using System;
-    
-    
+    using System.Drawing;
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,7 +24,6 @@ namespace BattleshipGame.Properties {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
-        
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
@@ -63,11 +63,44 @@ namespace BattleshipGame.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        
+        // image for battlefield1
         internal static System.Drawing.Bitmap battlefield1 {
             get {
                 object obj = ResourceManager.GetObject("battlefield1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+
+        // image for battlefield2
+        internal static System.Drawing.Bitmap battlefield2
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("battlefield2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        // image for successfull hit
+        internal static System.Drawing.Bitmap red_x
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("red_x", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        // image for failed hit
+        internal static System.Drawing.Bitmap greenHyphen
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("greenHyphen", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
     }
 }
