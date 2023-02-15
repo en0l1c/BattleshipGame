@@ -35,195 +35,100 @@ namespace BattleshipGame
         //    }
         //}
 
-        public static int GetX(Form form, PictureBox fieldPbox)
+        // Get the X from a pointA(x,y) from fields (pictureboxes)
+        public static int PositionX(Form form, PictureBox fieldPbox)
         {
            
             int borderWidth = (form.Width - form.ClientSize.Width) / 2;
-            int coorX = Control.MousePosition.X - form.Location.X - fieldPbox.Location.X - borderWidth;
+            int pointX = Control.MousePosition.X - form.Location.X - fieldPbox.Location.X - borderWidth;
             //return coorX;
-            return (coorX < 28 || coorX > 347) ? -1 : coorX; //to prwto koutaki ksekinaei sto x=35 kai to kathe koutaki apexei 37 me to epomeno
+            return (pointX < 28 || pointX > 347) ? -1 : pointX;
         }
-        public static int GetY(Form form, PictureBox fieldPbox)
+        // Get the Y from a pointA(x,y) from fields (pictureboxes)
+        public static int PositionY(Form form, PictureBox fieldPbox)
         {
             int borderWidth = (form.Width - form.ClientSize.Width) / 2;
             int titleBarHeight = form.Height - form.ClientSize.Height - 2 * borderWidth;
-            int coorY = Control.MousePosition.Y - form.Location.Y - fieldPbox.Location.Y - titleBarHeight - borderWidth;
+            int pointY = Control.MousePosition.Y - form.Location.Y - fieldPbox.Location.Y - titleBarHeight - borderWidth;
             //return coorY;
-            return (coorY < 28 || coorY > 347) ? -1 : coorY; //επιτρεπτές είναι μόνο τα points μεταξύ του 28 και του 347 και για τον αξονα χ'χ και για τον άξονα y'y
+            return (pointY < 28 || pointY > 347) ? -1 : pointY; //επιτρεπτές είναι μόνο τα points μεταξύ του 28 και του 347 και για τον αξονα χ'χ και για τον άξονα y'y
         }
-        static public int GetCell(int coor)
+
+        static public int WhichCell(int pos) // get which cell is by the position
         {
-            return (coor - 28) / 32;
+            // 28 is the length from the very beginning of the photo (pbox) to the first line of the grid. 
+            // 32 is the length of each cell
+            return (pos - 28) / 32;
         }
 
 
 
 
-        static public void DrawBorderToCell(int cellX, int cellY, Form form, PictureBox fieldPbox)
+        static public void BorderToCell(int cellX, int cellY, Form form, PictureBox fieldPbox)
         {
             Graphics g = fieldPbox.CreateGraphics();
             Pen p = new Pen(Color.Red, 3);
             Rectangle rect = new Rectangle((cellX + 1) * 32 - 7, (cellY + 1) * 32 - 7, 38, 38);
             g.DrawRectangle(p, rect);
         }
-        static public void DrawBorderToCell(int cellX, int cellY, Form form, PaintEventArgs e)
+        static public void BorderToCell(int cellX, int cellY, Form form, PaintEventArgs e)
         {
             Pen p = new Pen(Color.Red, 3);
             Rectangle rect = new Rectangle((cellX + 1) * 32 - 7, (cellY + 1) * 32 - 7, 38, 38);
             e.Graphics.DrawRectangle(p, rect);
         }
 
-        //static public void DrawColoredCell(int cellX, int cellY, PaintEventArgs e)
-        //{
-
-        //    //Graphics g = fieldPbox.CreateGraphics();
-        //    Brush b = new HatchBrush(HatchStyle.Percent50, Color.Yellow, Color.Black);
-        //    //Rectangle rect = new Rectangle((cellX + 1) * 32 - 7, (cellY + 1) * 32 - 7, 38, 38);
-        //    //g.FillRectangle(b, rect);
-
-        //    e.Graphics.FillRectangle(b, (cellX + 1) * 32 - 3, (cellY + 1) * 32 - 3, 31, 31);
-        //}
-        //static public void DrawColoredCell(int cellX, int cellY, int shipsSet, PaintEventArgs e)
-        //{
-
-        //    //Graphics g = fieldPbox.CreateGraphics();
-        //    Brush b = new HatchBrush(HatchStyle.Percent50, Color.Yellow, Color.Black);
-        //    //Rectangle rect = new Rectangle((cellX + 1) * 32 - 7, (cellY + 1) * 32 - 7, 38, 38);
-        //    //g.FillRectangle(b, rect);
-
-        //    e.Graphics.FillRectangle(b, (cellX + 1) * 32 - 3, (cellY + 1) * 32 - 3, 31, 31);
-        //}
-
-        //static public void DrawColoredCell(int cellX, int cellY, int shipsSet, PictureBox fieldPbox)
-        //{
-        //    using (Graphics g = Graphics.FromImage(fieldPbox.Image))
-        //    {
-        //        //Graphics g = fieldPbox.CreateGraphics();
-        //        Brush b = new HatchBrush(HatchStyle.Percent25, Color.Red, Color.Black);
-        //        //Rectangle rect = new Rectangle((cellX + 1) * 32 - 7, (cellY + 1) * 32 - 7, 38, 38);
-        //        //g.FillRectangle(b, rect);
-
-        //        g.FillRectangle(b, (cellX + 1) * 32 - 4, (cellY + 1) * 32 - 4, 29, 29);
-        //    }
-        //    fieldPbox.Refresh();
-        //}
-        static public void DrawColoredCell(int cellX, int cellY, int shipsSet, PaintEventArgs e)
+        static public void ColorTheCell(int cellX, int cellY, int shipsSet, PaintEventArgs e)
         {
             Brush b = new HatchBrush(HatchStyle.Percent25, Color.Red, Color.Black);
 
             e.Graphics.FillRectangle(b, (cellX + 1) * 32 - 2, (cellY + 1) * 32 - 2, 29, 29);
-            
         }
 
-        //static public void DrawHitOnShip(int cellX, int cellY, PictureBox fieldPbox)
-        //{
-        //    using (Graphics g = Graphics.FromImage(fieldPbox.Image))
-        //    {
-        //        g.DrawImage(hitOnShip, (cellX + 1) * 32, (cellY + 1) * 32);
-        //    }
-        //}
-        static public void DrawHitOnShip(int cellX, int cellY, PaintEventArgs e)
+        
+        static public void HitOnShip(int cellX, int cellY, PaintEventArgs e)
         {
             e.Graphics.DrawImage(hitOnShip, (cellX + 1) * 32 - 2, (cellY + 1) * 32 - 2);
         }
 
-        //static public void DrawHitOnWater(int cellX, int cellY, PictureBox fieldPbox)
-        //{
-        //    using (Graphics g = Graphics.FromImage(fieldPbox.Image))
-        //    {
-        //        g.DrawImage(hitOnWater, (cellX + 1) * 32, (cellY + 1) * 32);
-        //    }
-        //}
-        static public void DrawHitOnWater(int cellX, int cellY, PaintEventArgs e)
+        
+        static public void HitOnWater(int cellX, int cellY, PaintEventArgs e)
         {
             e.Graphics.DrawImage(hitOnWater, (cellX + 1) * 32 - 2, (cellY + 1) * 32 - 2) ;
         }
 
-        //// PictureBox paint event handler for drawing a ship set on a deck.
-        //static public void DrawShipSet(int[,] shipsSet, PaintEventArgs e)
-        //{
-        //    for (int x = 0; x < 10; x++)
-        //    {
-        //        for (int y = 0; y < 10; y++)
-        //        {
-        //            if (shipsSet[x, y] != -1)
-        //            {
-        //                DrawColoredCell(x, y, shipsSet[x, y], e);
-        //            }
-        //        }
-        //    }
-        //}
-        //static public void DrawShipSet(int[,] shipsSet, PictureBox fieldPbox)
-        //{
-        //    using (Graphics g = Graphics.FromImage(fieldPbox.Image))
-        //    {
-        //        for (int x = 0; x < 10; x++)
-        //        {
-        //            for (int y = 0; y < 10; y++)
-        //            {
-        //                if (shipsSet[x, y] != -1)
-        //                {
-        //                    DrawColoredCell(x, y, shipsSet[x, y], fieldPbox);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    fieldPbox.Refresh();
-        //}
-        static public void DrawShipSet(int[,] shipsSet, PaintEventArgs e)
+        // check every cell on the grid, if the cell shipSet[row, col] != -1 that means that the cell belongs to a ship
+        static public void SetOfShips(int[,] shipsSet, PaintEventArgs e) // Draw to the field the cells that have no value -1
         {
-            for (int x = 0; x < 10; x++)
+            for (int row = 0; row < 10; row++)
             {
-                for (int y = 0; y < 10; y++)
+                for (int col = 0; col < 10; col++)
                 {
-                    if (shipsSet[x, y] != -1)
+                    if (shipsSet[row, col] != -1)
                     {
-                        DrawColoredCell(x, y, shipsSet[x, y], e);
+                        ColorTheCell(row, col, shipsSet[row, col], e);
                     }
                 }
             }
         }
 
-        // PictureBox paint event handler for drawing a deck status of all the cells.
-        //static public void DrawFieldStatus(bool[,] deckStatus, int[,] shipSet, PictureBox fieldPbox)
-        //{
-        //    using (Graphics g = Graphics.FromImage(fieldPbox.Image))
-        //    {
-        //        for (int x = 0; x < 10; x++)
-        //        {
-        //            for (int y = 0; y < 10; y++)
-        //            {
-        //                if (deckStatus[x, y])
-        //                {
-        //                    if (shipSet[x, y] != -1)
-        //                    {
-        //                        DrawHitOnShip(x, y, fieldPbox);
-        //                    }
-        //                    else
-        //                    {
-        //                        DrawHitOnWater(x, y, fieldPbox);
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-            
-        //}
-        static public void DrawFieldStatus(bool[,] deckStatus, int[,] shipSet, PaintEventArgs e)
+        // check the grid, if the arg shipSet contain a value != from -1 then this cell belongs to a ship so draw the hitImage, else draw hitOnWater image
+        static public void SetRightImgToCell(bool[,] isCellRevealed, int[,] shipSet, PaintEventArgs e)
         {
-            for (int x = 0; x < 10; x++)
+            for (int row = 0; row < 10; row++)
             {
-                for (int y = 0; y < 10; y++)
+                for (int col = 0; col < 10; col++)
                 {
-                    if (deckStatus[x, y])
+                    // Check if the cell is revealed
+                    if (isCellRevealed[row, col])
                     {
-                        if (shipSet[x, y] != -1)
+                        if (shipSet[row, col] != -1)
                         {
-                            DrawHitOnShip(x, y, e);
+                            HitOnShip(row, col, e);
                         }
                         else
                         {
-                            DrawHitOnWater(x, y, e);
+                            HitOnWater(row, col, e);
                         }
                     }
                 }
@@ -231,36 +136,11 @@ namespace BattleshipGame
 
         }
 
-
-        //static public void DrawDestroyedShips(int[,] shipsSet, int[] ShipLeftCells, PictureBox fieldPbox)
-        //{
-        //    using (Graphics g = Graphics.FromImage(fieldPbox.Image))
-        //    {
-        //        for (int shipToDeploy = 0; shipToDeploy < 5; shipToDeploy++)
-        //        {
-        //            if (ShipLeftCells[shipToDeploy] == 0)
-        //            {
-        //                for (int row = 0; row < 10; row++)
-        //                {
-        //                    for (int col = 0; col < 10; col++)
-        //                    {
-        //                        if (shipsSet[row, col] == shipToDeploy)
-        //                        {
-        //                            DrawColoredCell(row, col, shipToDeploy, fieldPbox);
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-            
-        //}
-
-        static public void DrawDestroyedShips(int[,] shipsSet, int[] remainCellsForShips, PaintEventArgs e)
+        static public void DestroyedCpuShips(int[,] shipsSet, int[] remainCellsForShips, PaintEventArgs e)
         {
             for (int shipToDeploy = 0; shipToDeploy < 4; shipToDeploy++)
             {
-                if (remainCellsForShips[shipToDeploy] == 0)
+                if (remainCellsForShips[shipToDeploy] == 0) // check if the remaining cells for the shipToDeploy exist, if not, then display the ship to every cell existed at the field
                 {
                     for (int row = 0; row < 10; row++)
                     {
@@ -268,7 +148,7 @@ namespace BattleshipGame
                         {
                             if (shipsSet[row, col] == shipToDeploy)
                             {
-                                DrawColoredCell(row, col, shipToDeploy, e);
+                                ColorTheCell(row, col, shipToDeploy, e);
                             }
                         }
                     }

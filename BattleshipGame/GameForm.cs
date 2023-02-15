@@ -1,22 +1,12 @@
+using System.Security.Cryptography.X509Certificates;
+
 namespace BattleshipGame
 {
     public partial class GameForm : Form
     {
         int mouseCellX;
         int mouseCellY;
-
-        int totalShips;
-        int totalEnemyShips;
-        int rounds;
-
-
-        //Index of the selected ship\
-        //[-1] for none, [0] for patrol .......
-        int currentShip;
-        //Ship rotation (true->vertical), (false->horizontal)
-        bool shipRotation;
-        // Which ship is already deployed
-        bool[] shipDeployed = new bool[4];
+ 
 
         Player myPlayer;
         Player cpuPlayer;
@@ -25,23 +15,25 @@ namespace BattleshipGame
         {
             InitializeComponent();
 
-            mouseCellX = -1;
+            // -1 for knowing if the cell is unselected
+            mouseCellX = -1; 
             mouseCellY = -1;
 
-            currentShip = -1; // -1 for none
-            shipRotation = true; // true for vertical
 
-
-            //this.myPlayer = Game.myPlayer;
-            //this.cpuPlayer = Game.cpuPlayer;
             // GameForm Settings
             this.MaximizeBox = false;
             //this.CenterToScreen(1);
 
-
             myPlayer= new Player();
             cpuPlayer = new Player();
 
+            // take the names initialized from main form by parsing to player instances on Game class
+            this.myPlayer.playersName = Game.myPlayer.playersName;
+            this.cpuPlayer.playersName = Game.cpuPlayer.playersName;
+
+            label41.Text = myPlayer.playersName; // Player's label
+
+            timer1.Start();
 
             // cpu player
             Game.AutoDeployShips(cpuPlayer);
@@ -51,9 +43,7 @@ namespace BattleshipGame
             Game.AutoDeployShips(myPlayer);
             //Draw.DrawShipSet(myPlayer.setOfShips, playersFieldPbox);
 
-
-
-            Game.Initialize();
+            roundNumLabel.Text = Game.round.ToString();
         }
 
         private void enemysFieldPbox_Click(object sender, EventArgs e)
@@ -68,7 +58,28 @@ namespace BattleshipGame
                 if (Game.Attack(mouseCellX, mouseCellY, myPlayer, cpuPlayer))
                 {
                     enemysFieldPbox.Refresh();
-                    MessageBox.Show("the game is over");
+
+                    // Increase round, add to battlelog if any ship destroyed
+                    battlelogRTbox.Text = myPlayer.battlelog;
+                    roundNumLabel.Text = Game.round.ToString();
+
+                    MessageBox.Show(myPlayer.playersName + " won!");
+
+                    // Before new game
+                    // Save victories and defeats
+                    myPlayer.victories += 1;
+                    cpuPlayer.defeats += 1;
+                    MessageBox.Show("from myPlayers win: " + myPlayer.playersName + " victories / defeats: " + myPlayer.victories + " / " + myPlayer.defeats +
+                        "\n" +
+                            cpuPlayer.playersName + " victories / defeats: " + cpuPlayer.victories + " / " + cpuPlayer.defeats);
+                    // TIMER - Save the time took to game over
+                    timer1.Stop(); // First stop the timer after the game is over
+                    Game.CalculateTime(); // Return the time in format of mins and secs
+                    
+
+                    // New Game
+                    newGameLabel.Visible = true;
+                     
 
                 }
                 else
@@ -77,16 +88,37 @@ namespace BattleshipGame
                     // draw again the deck
                     enemysFieldPbox.Refresh();
 
+                    // Increase round, add to battlelog if any ship destroyed
+                    battlelogRTbox.Text = myPlayer.battlelog;
+                    roundNumLabel.Text = Game.round.ToString();
+
+                    // let the cpu choose a cell from myPlayers field that is unrevelaed
                     int[] cpuMove = Game.CpuCellSelection(myPlayer);
                     if (Game.Attack(cpuMove[0], cpuMove[1], cpuPlayer, myPlayer))
                     {
-                        for(int shipToDeploy = 0; shipToDeploy < 5; shipToDeploy++)
+                        // Increase round, add to battlelog if any ship destroyed
+                        battlelogRTbox.Text = myPlayer.battlelog;
+                        roundNumLabel.Text = Game.round.ToString();
+
+                        for (int shipToDeploy = 0; shipToDeploy < 4; shipToDeploy++)
                         {
                             cpuPlayer.remainCellsForShips[shipToDeploy] = 0;
                         }
 
                         // cpu has won
+                        MessageBox.Show("cpu won");
+
+                        // Before new game
+                        // Save victories and defeats
+                        cpuPlayer.victories += 1;
+                        myPlayer.defeats += 1;
+                        MessageBox.Show("from cpuPlayers win: " + myPlayer.playersName + " victories / defeats: " + myPlayer.victories + " / " + myPlayer.defeats + "\n" +
+                            cpuPlayer.playersName + " victories / defeats: " + cpuPlayer.victories + " / " + cpuPlayer.defeats);
                         playersFieldPbox.Refresh();
+
+                        // New Game
+                        newGameLabel.Visible = true;
+
                     }
                     else
                     {
@@ -94,6 +126,14 @@ namespace BattleshipGame
 
                         // cpu has not won
                         playersFieldPbox.Refresh();
+
+                        
+                        // Increase round, add to battlelog if any ship destroyed
+                        battlelogRTbox.Text = myPlayer.battlelog;
+                        roundNumLabel.Text = Game.round.ToString();
+
+                        
+
                     }
                 }
             }
@@ -103,20 +143,20 @@ namespace BattleshipGame
         private void enemysFieldPbox_MouseMove(object sender, MouseEventArgs e)
         {
             // Are we on the grid of the first deck?
-            if (Draw.GetX(this, enemysFieldPbox) != -1 && Draw.GetY(this, enemysFieldPbox) != -1)
+            if (Draw.PositionX(this, enemysFieldPbox) != -1 && Draw.PositionY(this, enemysFieldPbox) != -1)
             {
                 // Have the cell selected by mouse changed?
-                if (Draw.GetCell(Draw.GetX(this, enemysFieldPbox)) != mouseCellX || Draw.GetCell(Draw.GetY(this, enemysFieldPbox)) != mouseCellY)
+                if (Draw.WhichCell(Draw.PositionX(this, enemysFieldPbox)) != mouseCellX || Draw.WhichCell(Draw.PositionY(this, enemysFieldPbox)) != mouseCellY)
                 {
                     // Update the cell selected by mouse.
-                    mouseCellX = Draw.GetCell(Draw.GetX(this, enemysFieldPbox));
-                    mouseCellY = Draw.GetCell(Draw.GetY(this, enemysFieldPbox));
+                    mouseCellX = Draw.WhichCell(Draw.PositionX(this, enemysFieldPbox));
+                    mouseCellY = Draw.WhichCell(Draw.PositionY(this, enemysFieldPbox));
 
                     // Repaint the first deck.
                     enemysFieldPbox.Refresh();
 
                     // Draw the outer frame of the selected cell.
-                    Draw.DrawBorderToCell(mouseCellX, mouseCellY, this, enemysFieldPbox);
+                    Draw.BorderToCell(mouseCellX, mouseCellY, this, enemysFieldPbox);
                    
                 }
             }
@@ -133,46 +173,72 @@ namespace BattleshipGame
 
         private void enemysFieldPbox_MouseClick(object sender, MouseEventArgs e)
         {
-            //MessageBox.Show(Draw.GetX(this, enemysFieldPbox).ToString() + Environment.NewLine + Draw.GetY(this, enemysFieldPbox).ToString());
 
-           
 
         }
 
         private void enemysFieldPbox_Paint(object sender, PaintEventArgs e)
         {
-            //int x, y;
-            //x = Cell.GetPointOfRequestedCell("E6").X;
-            //y = Cell.GetPointOfRequestedCell("E6").Y;
-
-            //MessageBox.Show("X = " + Cell.GetPointOfRequestedCell("A3").X.ToString() + "Y = " + Cell.GetPointOfRequestedCell("A3").Y.ToString());
-            //MessageBox.Show("GetCell(x): " + Draw.GetCell(x).ToString() + "GetCell(y): " + Draw.GetCell(y).ToString());
-
-            //Draw.DrawColoredCell(Draw.GetCell(x), Draw.GetCell(y), e);
-
-
-            //Game.AutoDeployShips(cpuPlayer);
-            //Draw.DrawShipSet(cpuPlayer.setOfShips, e);
-            //Draw.DrawFieldStatus(cpuPlayer.revealedCells,  cpuPlayer.setOfShips, e);
-
-            Draw.DrawShipSet(cpuPlayer.setOfShips, e);
-            Draw.DrawDestroyedShips(cpuPlayer.setOfShips, cpuPlayer.remainCellsForShips, e);
-            Draw.DrawFieldStatus(cpuPlayer.revealedCells, cpuPlayer.setOfShips, e);
+            Draw.SetOfShips(cpuPlayer.setOfShips, e);
+            Draw.DestroyedCpuShips(cpuPlayer.setOfShips, cpuPlayer.remainCellsForShips, e);
+            Draw.SetRightImgToCell(cpuPlayer.revealedCells, cpuPlayer.setOfShips, e);
 
             if (cpuPlayer.lastRevealedCells[0] != -1 && cpuPlayer.lastRevealedCells[1] != -1)
             {
-                Draw.DrawBorderToCell(cpuPlayer.lastRevealedCells[0], cpuPlayer.lastRevealedCells[1], this, e);
+                Draw.BorderToCell(cpuPlayer.lastRevealedCells[0], cpuPlayer.lastRevealedCells[1], this, e);
             }
         }
 
         private void playersFieldPbox_Paint(object sender, PaintEventArgs e)
         {
-            Draw.DrawShipSet(myPlayer.setOfShips, e);
-            Draw.DrawFieldStatus(myPlayer.revealedCells, myPlayer.setOfShips, e);
+            Draw.SetOfShips(myPlayer.setOfShips, e);
+            Draw.SetRightImgToCell(myPlayer.revealedCells, myPlayer.setOfShips, e);
             if (myPlayer.lastRevealedCells[0] != -1 && myPlayer.lastRevealedCells[1] != -1)
             {
-                Draw.DrawBorderToCell(myPlayer.lastRevealedCells[0], myPlayer.lastRevealedCells[1], this, e);
+                Draw.BorderToCell(myPlayer.lastRevealedCells[0], myPlayer.lastRevealedCells[1], this, e);
             }
+        }
+
+        private void newGameLabel_MouseHover(object sender, EventArgs e)
+        {
+        }
+
+        private void newGameLabel_Click(object sender, EventArgs e)
+        {
+            // New Game
+            
+            newGameLabel.Visible = false;
+            Thread.Sleep(100);
+            Game.NewGame(myPlayer);
+            Game.NewGame(cpuPlayer);
+            roundNumLabel.Text = Game.round.ToString();
+            battlelogRTbox.Clear();
+            
+            playersFieldPbox.Refresh();
+            enemysFieldPbox.Refresh();
+            timer1.Start();
+        }
+
+        private void newGameLabel_MouseEnter(object sender, EventArgs e)
+        {
+            newGameLabel.ForeColor = Color.Red;
+
+        }
+
+        private void newGameLabel_MouseLeave(object sender, EventArgs e)
+        {
+            newGameLabel.ForeColor = Color.White;
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            Game.timeToTheEnd += 1000;
+        }
+
+        private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

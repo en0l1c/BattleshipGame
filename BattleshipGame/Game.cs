@@ -9,10 +9,11 @@ namespace BattleshipGame
 {
     static class Game
     {
-        public static int round;
+        public static int round = 1;
         // lengths of four ships
-        static int[] lengthsOfShips = new int[4] { 2, 3, 4, 5 };
-        static bool whosTurn; // true for player's turn, false for cpu turn
+        static int[] lengthsOfShip = new int[4] { 2, 3, 4, 5 };
+        public static string stringForBattleLog;
+        public static int timeToTheEnd;
 
         // neighbour cells of the destroyed ship
         public static int extraRevealedCells = 0;
@@ -20,19 +21,15 @@ namespace BattleshipGame
         public static Player myPlayer;
         public static Player cpuPlayer;
 
+        static string[] kindOfShips = new string[4] { "Υποβρύχιο(2)", "Πολεμικό(3)", "Αντιτορπιλικό(4)", "Αεροπλανοφόρο(5)" };
 
-        static public void Initialize()
-        {
-            whosTurn = true;
-            round = 1;
-        }
+
         public static int RandomNumber(int maxNum)
         {
             Random rnd = new Random();
             return rnd.Next(maxNum);
         }
 
-        //public static bool IsValidCellForShip(int shipToDeploy, int cellX, int cellY, bool isHorizontal, int[,] shipSet, Player player)
 
         // Is Valid Cell for deploying a Ship?
         public static bool IsValidCell(int shipToDeploy, int cellX, int cellY, bool isHorizontal, int[,] shipsSet, Player player)
@@ -40,7 +37,7 @@ namespace BattleshipGame
             //cellX for row
             // cellY for column
 
-            //MessageBox.Show(lengthsOfShips[shipToDeploy].ToString());
+            // If cellX or cellY are below the zero, means
             if(cellX < 0 || cellY < 0)
             {
                 return false;
@@ -48,10 +45,10 @@ namespace BattleshipGame
 
             if (isHorizontal)
             {
-                if (cellX + lengthsOfShips[shipToDeploy] - 1 <= 9)
+                if (cellX + lengthsOfShip[shipToDeploy] - 1 <= 9)
                 {
-                    // searching for an invalid layout on the grid
-                    for(int row = Math.Max(0, cellX - 1); row <= Math.Min(9, cellX + lengthsOfShips[shipToDeploy]); row++)
+                    // check all the cells that are not valid to put a ship on they
+                    for(int row = Math.Max(0, cellX - 1); row <= Math.Min(9, cellX + lengthsOfShip[shipToDeploy]); row++)
                     {
                         //MessageBox.Show($"i: {row}, lengthOfShips: {lengthsOfShips[shipToDeploy]}");
                         for(int col = Math.Max(0, cellY - 1); col <= Math.Min(9, cellY + 1); col++)
@@ -61,11 +58,6 @@ namespace BattleshipGame
                                 // invalid layout
                                 return false;
                             }
-                            //MessageBox.Show($"row: {row}, lengthOfShips: {lengthsOfShips[shipToDeploy]}, cellX = {cellX} " +
-                            //    $"{Environment.NewLine} " +
-                            //    $"col: {col}, lengthOfShips: {lengthsOfShips[shipToDeploy]}, cellY = {cellY} " +
-                            //    $"{Environment.NewLine}" +
-                            //    $"");
                         }
                     }
 
@@ -81,12 +73,12 @@ namespace BattleshipGame
             else
             {
                 // vertical validation
-                if(cellY + lengthsOfShips[shipToDeploy] -1 <= 9)
+                if(cellY + lengthsOfShip[shipToDeploy] -1 <= 9)
                 {
                     // searching for an invalid layout on the grid
                     for(int row = Math.Max(0, cellX - 1); row <= Math.Min(9, cellX + 1); row++)
                     {
-                        for(int col = Math.Max(0, cellY - 1); col <= Math.Min(9, cellY + lengthsOfShips[shipToDeploy]); col++)
+                        for(int col = Math.Max(0, cellY - 1); col <= Math.Min(9, cellY + lengthsOfShip[shipToDeploy]); col++)
                         {
                             if (shipsSet[row, col] != -1)
                             {
@@ -105,11 +97,11 @@ namespace BattleshipGame
             }
         }
 
-        public static void DeployShip(int shipToDeploy, int cellX, int cellY, bool isHorizontal, int[,] shipsSet)
+        public static void PutShipToField(int shipToDeploy, int cellX, int cellY, bool isHorizontal, int[,] shipsSet)
         {
             if(isHorizontal)
             {
-                for(int i = 0; i < lengthsOfShips[shipToDeploy]; i++)
+                for(int i = 0; i < lengthsOfShip[shipToDeploy]; i++)
                 {
                     // deploy a ship into the shipsSet
                     shipsSet[cellX + i, cellY] = shipToDeploy;
@@ -117,7 +109,7 @@ namespace BattleshipGame
             }
             else
             {
-                for(int i = 0; i < lengthsOfShips[shipToDeploy]; i++)
+                for(int i = 0; i < lengthsOfShip[shipToDeploy]; i++)
                 {
                     shipsSet[cellX, cellY + i] = shipToDeploy;
                 }
@@ -129,7 +121,7 @@ namespace BattleshipGame
             for(int shipToDeploy = 0; shipToDeploy < 4; shipToDeploy++)
             {
                 // create a list for storing the possibilities
-                List<int[]> possibilities = new List<int[]>();
+                List<int[]> validCellsForShips = new List<int[]>();
                 List<bool> rotationAspects = new List<bool>();
 
                 // for loops to check all the cells of the field (2D array) 10x10
@@ -140,13 +132,7 @@ namespace BattleshipGame
                         // if its horizontal
                         if (IsValidCell(shipToDeploy, row, col, true, player.setOfShips, player))
                         {
-                            //MessageBox.Show($"row: {row}" +
-                            //    $"{Environment.NewLine} " +
-                            //    $"col: {col}" +
-                            //    $"{Environment.NewLine}" +
-                            //    $"{IsValidCell(shipToDeploy, row, col, true, player.setOfShips, player)}");
-                            possibilities.Add(new int[2] { row, col });
-                            //
+                            validCellsForShips.Add(new int[2] { row, col });
                             rotationAspects.Add(true);
                         }
                         // if its vertical
@@ -157,30 +143,27 @@ namespace BattleshipGame
                             //    $"col: {col}" +
                             //    $"{Environment.NewLine}" +
                             //    $"{IsValidCell(shipToDeploy, row, col, false, player.setOfShips, player)}");
-                            possibilities.Add(new int[2] { row, col });
+                            validCellsForShips.Add(new int[2] { row, col });
                             //
                             rotationAspects.Add(false);
                         }
                     }
                 }
 
-                // choose the possibility
-                int random = RandomNumber(possibilities.Count);
-
+                // choose a random valid cell from the list
+                int random = RandomNumber(validCellsForShips.Count);
 
                 // deploy the ship into the setOfShips
-                DeployShip(shipToDeploy, possibilities[random][0], possibilities[random][1], rotationAspects[random], player.setOfShips);
+                PutShipToField(shipToDeploy, validCellsForShips[random][0], validCellsForShips[random][1], rotationAspects[random], player.setOfShips);
             }
         }
 
         // return true if the attack was the last and game is over, or return false
         static public bool Attack(int cellX, int cellY, Player attacker, Player attacked)
         {
+            //MessageBox.Show("Who's turn: " + whosTurn.ToString());
             // here goes logs
             // ....
-
-            //Thread.Sleep(3000); // wait a few seconds to create a feel of shooting
-
 
             // mark the attacked cell as revelead cell
             attacked.revealedCells[cellX, cellY] = true;
@@ -205,6 +188,11 @@ namespace BattleshipGame
 
                 if (attacked.remainCellsForShips[attacked.setOfShips[cellX, cellY]] == 0)
                 {
+                    //MessageBox.Show(kindOfShips[attacked.setOfShips[cellX, cellY]]);
+                    stringForBattleLog += "Round " + round + ": Βυθίστηκε το " + kindOfShips[attacked.setOfShips[cellX, cellY]] + " πλοίο του παίκτη: " + attacked.playersName + "\n";
+                    attacked.battlelog = stringForBattleLog;
+                    attacker.battlelog = stringForBattleLog;
+
                     // all the cells from the ship is revealed, so the ship was completely destroyed
                     attacked.remainShips--;
 
@@ -257,11 +245,8 @@ namespace BattleshipGame
             {
                 for (int col = 0; col < 10; col++)
                 {
-                    //MessageBox.Show("row: " + row.ToString() + " col: " + col.ToString());
                     if (attacked.setOfShips[row, col] == attacked.setOfShips[cellX, cellY])
                     {
-                        
-                        
                         try
                         {
                             if (!attacked.revealedCells[row - 1, col - 1])
@@ -385,6 +370,7 @@ namespace BattleshipGame
             {
                 for(int col = 0; col < 10; col++)
                 {
+                    // if the cell is unrevealed add it to the list
                     if (!player.revealedCells[row, col])
                     {
                         unreferencedCells.Add(new int[2] { row, col });
@@ -393,7 +379,56 @@ namespace BattleshipGame
             }
 
             return unreferencedCells[RandomNumber(unreferencedCells.Count)];
+        }
 
+
+        static public void NewGame(Player player)
+        {
+            round = 1;
+
+            stringForBattleLog = "";
+            timeToTheEnd = 0;
+            player.battlelog = "";
+            player.remainCellsForShips = new int[] { 2, 3, 4, 5 };
+            player.unrevealedCells = 100; // at the begging all the cells are unrevealed
+            player.remainShips = 4;
+            player.remainShipCells = 14;
+            player.setOfShips = new int[10, 10]; // 2D array 10x10
+            player.revealedCells = new bool[10, 10];
+
+            // 1 for loop for row, and one loop for column
+            for (int row = 0; row < 10; row++)
+            {
+                for (int col = 0; col < 10; col++)
+                {
+                    player.setOfShips[row, col] = -1; // at the beginning of the game all 
+                    player.revealedCells[row, col] = false; // turn all 100 cells as false to say they are unrevealed cells
+
+                }
+            }
+
+            player.lastRevealedCells = new int[2];
+            player.lastRevealedCells[0] = -1;
+            player.lastRevealedCells[1] = -1;
+
+            AutoDeployShips(player);
+            
+            //new GameForm();
+        }
+
+        static public void CalculateTime()
+        {
+            Game.timeToTheEnd = Game.timeToTheEnd / 1000; // divine by the timer's interval to get the total seconds;
+            if (Game.timeToTheEnd >= 60)
+            {
+                int minutes = Game.timeToTheEnd / 60;
+                int seconds = Game.timeToTheEnd % 60;
+                MessageBox.Show(minutes.ToString() + " min " + seconds.ToString() + " sec to end the game");
+            }
+            else
+            {
+                MessageBox.Show(Game.timeToTheEnd.ToString() + " seconds to end the game");
+            }
         }
     }
 }
