@@ -1,39 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace BattleshipGame
+﻿namespace BattleshipGame
 {
     public partial class MainMenuForm : Form
     {
         public MainMenuForm()
         {
             InitializeComponent();
-
-            
-
         }
 
         private void MainMenuForm_Load(object sender, EventArgs e)
         {
-
+            // CREATE TABLE IF NOT EXISTS
+            Game.ActionToDatabase("createdb", Game.myPlayer);
         }
 
         private void startBtn_Click(object sender, EventArgs e)
         {
-            //Game.Initialize();
+            // initialize players from Game class
             Game.myPlayer = new Player();
             Game.cpuPlayer = new Player();
             // Set the player's name
             Game.myPlayer.playersName = playersNameTbox.Text;
             // Set the name for computer
-            Game.cpuPlayer.playersName = "Computer";
+            Game.cpuPlayer.playersName = "CPU";
 
 
             GameForm game = new GameForm();
@@ -44,5 +32,12 @@ namespace BattleshipGame
 
             //Dispose();
         }
+
+        private void viewGameStatsBtn_Click(object sender, EventArgs e)
+        {
+            Game.ActionToDatabase("selectdb", Game.myPlayer);
+            
+        }
+
     }
 }

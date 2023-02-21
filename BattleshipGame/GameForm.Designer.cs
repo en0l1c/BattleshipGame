@@ -79,6 +79,8 @@
             this.roundNumLabel = new System.Windows.Forms.Label();
             this.newGameLabel = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.timeLabel = new System.Windows.Forms.Label();
+            this.timeTakenLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.enemysFieldPbox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.playersFieldPbox)).BeginInit();
             this.SuspendLayout();
@@ -680,6 +682,31 @@
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // timeLabel
+            // 
+            this.timeLabel.AutoSize = true;
+            this.timeLabel.BackColor = System.Drawing.Color.Transparent;
+            this.timeLabel.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.timeLabel.ForeColor = System.Drawing.SystemColors.ControlLight;
+            this.timeLabel.Location = new System.Drawing.Point(48, 591);
+            this.timeLabel.Name = "timeLabel";
+            this.timeLabel.Size = new System.Drawing.Size(199, 45);
+            this.timeLabel.TabIndex = 49;
+            this.timeLabel.Text = "Time Taken:";
+            this.timeLabel.Visible = false;
+            // 
+            // timeTakenLabel
+            // 
+            this.timeTakenLabel.AutoSize = true;
+            this.timeTakenLabel.BackColor = System.Drawing.Color.Transparent;
+            this.timeTakenLabel.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.timeTakenLabel.ForeColor = System.Drawing.SystemColors.ControlLight;
+            this.timeTakenLabel.Location = new System.Drawing.Point(241, 591);
+            this.timeTakenLabel.Name = "timeTakenLabel";
+            this.timeTakenLabel.Size = new System.Drawing.Size(0, 45);
+            this.timeTakenLabel.TabIndex = 50;
+            this.timeTakenLabel.Visible = false;
+            // 
             // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -687,6 +714,8 @@
             this.BackgroundImage = global::BattleshipGame.Properties.Resources.bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(943, 831);
+            this.Controls.Add(this.timeTakenLabel);
+            this.Controls.Add(this.timeLabel);
             this.Controls.Add(this.newGameLabel);
             this.Controls.Add(this.roundNumLabel);
             this.Controls.Add(this.roundLabel);
@@ -739,6 +768,8 @@
             this.Name = "GameForm";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GameForm_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.GameForm_FormClosed);
+            this.Load += new System.EventHandler(this.GameForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.enemysFieldPbox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.playersFieldPbox)).EndInit();
             this.ResumeLayout(false);
@@ -798,5 +829,7 @@
         private Label roundNumLabel;
         private Label newGameLabel;
         private System.Windows.Forms.Timer timer1;
+        private Label timeLabel;
+        private Label timeTakenLabel;
     }
 }

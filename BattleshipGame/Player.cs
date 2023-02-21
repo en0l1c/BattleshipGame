@@ -9,23 +9,16 @@ namespace BattleshipGame
     class Player
     {
         public string playersName;
-
         public int[] remainCellsForShips { get; set; }
         public int remainShips { get; set; }
         public int remainShipCells { get; set; }
-
         public int[,] setOfShips { get; set; } //2D array for all locations of the ships
         public bool[,] revealedCells { get; set; } //2D array for knowing which cell is revealed. true --> revealed, false --> unrevealed
         public int[] lastRevealedCells { get; set; } // latest revealed cells
         public int unrevealedCells;
-
         public int victories { get; set; }
         public int defeats { get; set; }
-
-        // Hits count.
-        public int hits { get; set; }
-        // Misses count.
-        public int misses { get; set; }
+ 
         // Battle log content.
         public string battlelog { get; set; }
         public Player()

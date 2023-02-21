@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -23,16 +24,23 @@ namespace BattleshipGame
 
         static string[] kindOfShips = new string[4] { "Υποβρύχιο(2)", "Πολεμικό(3)", "Αντιτορπιλικό(4)", "Αεροπλανοφόρο(5)" };
 
-
+        // db
+        // string that has the info for the connection with db
+        public static String connectionString = "Data source=games.db;Version=3;";
+        static public SQLiteConnection connection;
+        static public SQLiteCommand command;
+        // true if winner is myPlayer, false if winner is the computer
+        public static bool winner;
         public static int RandomNumber(int maxNum)
         {
             Random rnd = new Random();
             return rnd.Next(maxNum);
         }
 
+        
 
-        // Is Valid Cell for deploying a Ship?
-        public static bool IsValidCell(int shipToDeploy, int cellX, int cellY, bool isHorizontal, int[,] shipsSet, Player player)
+    // check if the cell is valid to deploy a ship
+    public static bool IsValidCell(int shipToDeploy, int cellX, int cellY, bool isHorizontal, int[,] shipsSet, Player player)
         {
             //cellX for row
             // cellY for column
@@ -138,13 +146,7 @@ namespace BattleshipGame
                         // if its vertical
                         if (IsValidCell(shipToDeploy, row, col, false, player.setOfShips, player))
                         {
-                            //MessageBox.Show($"row: {row}" +
-                            //    $"{Environment.NewLine} " +
-                            //    $"col: {col}" +
-                            //    $"{Environment.NewLine}" +
-                            //    $"{IsValidCell(shipToDeploy, row, col, false, player.setOfShips, player)}");
                             validCellsForShips.Add(new int[2] { row, col });
-                            //
                             rotationAspects.Add(false);
                         }
                     }
@@ -161,10 +163,6 @@ namespace BattleshipGame
         // return true if the attack was the last and game is over, or return false
         static public bool Attack(int cellX, int cellY, Player attacker, Player attacked)
         {
-            //MessageBox.Show("Who's turn: " + whosTurn.ToString());
-            // here goes logs
-            // ....
-
             // mark the attacked cell as revelead cell
             attacked.revealedCells[cellX, cellY] = true;
             attacked.unrevealedCells--; // firstly the unrevealed cells are 100, on each reveal decrease by one the unrevealedCells
@@ -178,13 +176,8 @@ namespace BattleshipGame
             {
                 attacked.remainShipCells--;
 
-                attacker.hits++;
-
-                // decrease the amount of cells left for the ship that has been hit
+                // decrease the amount of cells left for the ship that has been get hit
                 attacked.remainCellsForShips[attacked.setOfShips[cellX, cellY]]--;
-
-                // logs go here
-                // ....
 
                 if (attacked.remainCellsForShips[attacked.setOfShips[cellX, cellY]] == 0)
                 {
@@ -196,27 +189,20 @@ namespace BattleshipGame
                     // all the cells from the ship is revealed, so the ship was completely destroyed
                     attacked.remainShips--;
 
-                    // log goes here
-                    // ... 
-
                     // reveal neighbouring cells of the destroyed ship
                     RevealedNeighbouringCells(cellX, cellY, attacker, attacked);
 
                     //decrease the number of unrevealed cells
                     attacked.unrevealedCells -= extraRevealedCells;
 
-                    // log goes here
-                    // ...
-
                     // check if the game is over
                     if(attacked.remainShips == 0)
                     {
-                        // name of the player he wons
                         return true;
                     }
                     else
                     {
-                        return false; // return false if there are ships
+                        return false; // return false if there are ships on field
                     }
 
                 }
@@ -229,7 +215,6 @@ namespace BattleshipGame
             else
             {
                 // the attack went to the sea, so it counts as a missed shoot
-                attacker.misses++;
                 return false;
             }
         }
@@ -412,23 +397,111 @@ namespace BattleshipGame
             player.lastRevealedCells[1] = -1;
 
             AutoDeployShips(player);
+
             
-            //new GameForm();
+            
         }
 
-        static public void CalculateTime()
+        static public string CalculateTime()
         {
-            Game.timeToTheEnd = Game.timeToTheEnd / 1000; // divine by the timer's interval to get the total seconds;
-            if (Game.timeToTheEnd >= 60)
+            string timeStr = "";
+
+            if (timeToTheEnd > 59)
             {
-                int minutes = Game.timeToTheEnd / 60;
-                int seconds = Game.timeToTheEnd % 60;
-                MessageBox.Show(minutes.ToString() + " min " + seconds.ToString() + " sec to end the game");
+                int minutes = timeToTheEnd / 60;
+                int seconds = timeToTheEnd % 60;
+                timeStr = minutes.ToString() + " m " + seconds.ToString() + " s";
+                return (timeStr);
             }
             else
             {
-                MessageBox.Show(Game.timeToTheEnd.ToString() + " seconds to end the game");
+                timeStr = timeToTheEnd.ToString() + "s";
+                return (timeStr);
             }
+        }
+
+
+        // DATABSE
+        static public void ActionToDatabase(string action, Player player)
+        {
+            Game.connection = new SQLiteConnection(Game.connectionString);
+
+            switch (action.ToLower())
+            {
+                // DROP TABLE IF EXISTS
+                case "dropdb":
+                    connection.Open();
+                    string dropSQL = "DROP TABLE IF EXISTS Games";
+                    command = new SQLiteCommand(dropSQL, connection);
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                    break;
+
+                // CREATE TABLE IF NOT EXISTS
+                case "createdb":
+                    connection.Open();
+                    string createSQL = "CREATE TABLE IF NOT EXISTS Games(id INTEGER auto increment PRIMARY KEY, Name TEXT, Total_Time TEXT, Total_Tries TEXT, Winner TEXT, Total_Wins INTEGER)";
+                    // get from sql and action in db
+                    command = new SQLiteCommand(createSQL, connection);
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                    break;
+
+                // INSERT INTO TABLE
+                case "insertdb":
+                    // db (insert if cpuPlayer is winner)
+                    connection.Open();
+                    String inserstSQL = "Insert into Games(Name, Total_Time, Total_Tries, Winner, Total_Wins) values(" +
+                        "'" + player.playersName + "'," +
+                        "'" + CalculateTime() + "'," +
+                        "'" + round.ToString() + "'," +
+                        "'" + player.playersName + "'," +
+                        "'" + player.victories + "')";
+                    command = new SQLiteCommand(inserstSQL, connection);
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                    break;
+
+                case "selectdb":
+                    String str = "";
+                    connection.Open();
+                    String selectSQL = "Select * from Games";
+                    // command
+                    Game.command = new SQLiteCommand(selectSQL, connection);
+                    //data reader
+                    try
+                    {
+                        SQLiteDataReader reader = command.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            str +=
+                                reader.GetString(1) + "\t\t" +
+                                reader.GetString(2) + "\t\t" +
+                                reader.GetString(3) + "\t\t" +
+                                reader.GetString(4) + "(" +
+                                reader.GetInt16(5).ToString() + ")\n"; 
+                        }
+                        MessageBox.Show(
+                            "Player:" +
+                                "\tLast Match Time:" +
+                                "\tLast Match Rounds:" +
+                                "\tWinner(n):\n\n" +
+                            str
+                            );
+                    }
+                    catch
+                    {
+                        MessageBox.Show("There is no db table to show");
+                    }
+                    
+                    
+                    connection.Close();
+                    break;
+
+            }
+
         }
     }
 }
+

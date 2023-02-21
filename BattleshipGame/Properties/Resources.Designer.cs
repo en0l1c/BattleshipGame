@@ -111,5 +111,14 @@ namespace BattleshipGame.Properties {
             }
         }
 
+        internal static System.Drawing.Bitmap main_bg
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("main_bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
     }
 }
